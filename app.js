@@ -1,6 +1,6 @@
 'use strict';
 
-const shifts = [
+var shifts = [
     [1800, 2300],
     [0800, 1300],
     [1200, 1800],
@@ -15,7 +15,7 @@ const shifts = [
     [1900, 2300],
 ];
 
-function compare(t1, t2) {
+function sortShifts(t1, t2) {
     if (t1[0] > t2[0]) return +1;
     if (t1[0] < t2[0]) return -1;
     if (t1[1] > t2[1]) return +1;
@@ -23,21 +23,35 @@ function compare(t1, t2) {
     return 0;
 }
 
-const sortedShifts = shifts.sort(compare);
+function sortBins(b1, b2) {
+    var b1Max = b1.reduce(maximum, 0);
+    var b2Max = b2.reduce(maximum, 0);
 
-const bins = [];
-let minimum;
+    if (b1Max > b2Max) return +1;
+    if (b1Max < b2Max) return -1;
+    return 0;
+}
+
+function maximum(max, shift) {
+    if (shift[1] > max) {
+        max = shift[1];
+    }
+    return max;
+}
+
+var sortedShifts = shifts.sort(sortShifts);
+var bins = [];
 
 function bin(shift) {
-    if (!minimum || shift[1] < minimum) {
-        minimum = shift[1];
+    bins.sort(sortBins);
+    for (var i = 0; i < bins.length; i++) {
+        if (shift[0] < bins[i].reduce(maximum, 0)) continue;
+        bins[i].push(shift);
+        return;
     }
-    if (shift[0] < minimum) {
-        bins.push([shift]);
-    }
+    bins.push([shift]);
 }
 
 sortedShifts.forEach(bin);
 
 console.log(bins);
-console.log(minimum);
